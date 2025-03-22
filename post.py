@@ -173,7 +173,7 @@ def post_event(data: dict, index:int):
 
 if __name__ == "__main__":
     logging.info('Starting event scraping process')
-    # get_new_events()
+    get_new_events()
     
     if os.path.exists('new_events.xlsx'):
         data = pd.read_excel('new_events.xlsx').to_dict('records')
