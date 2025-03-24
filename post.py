@@ -145,7 +145,14 @@ def post_event(data: dict, index:int):
             page.get_by_label("Yes").check()
             page.get_by_placeholder("Enter the post title").fill(f"{data['name']} ({data['game_system']})")
             page.locator('input#event_fields_322-element-15').fill(data['game_system'])
-            
+            try:
+                page.get_by_label("event_fields-element-15-1").select_option(data['start_time'], timeout=1000)
+            except:
+                pass
+            try:
+                page.get_by_label("event_fields-element-15-2").select_option(data['end_time'],timeout=1000)
+            except:
+                pass
             page.locator("#stardatepicker").fill(data['start_date'])
             page.locator("#enddatepicker").fill(data['end_date'])
             page.get_by_label("External Web Link").fill(data['event_link'])
@@ -164,7 +171,7 @@ def post_event(data: dict, index:int):
             logging.info(f'Event {data["name"]} posted successfully')
             
         except Exception as e:
-            logging.error(f'Error posting event {data["name"]}: {e}')
+            logging.error(f'Error posting event {data["name"]}')
         finally:
             page.close()
             context.close()
@@ -173,13 +180,13 @@ def post_event(data: dict, index:int):
 
 if __name__ == "__main__":
     logging.info('Starting event scraping process')
-    get_new_events()
+    # get_new_events()
     
     if os.path.exists('new_events.xlsx'):
         data = pd.read_excel('new_events.xlsx').to_dict('records')
         
         for index, event_details in enumerate(data, start=1):
-            if index<1:
+            if index<347:
                 continue
             response = post_event(event_details, index)
             

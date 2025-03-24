@@ -173,3 +173,8 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 state.json
+Events_data.xlsx
+new_events.xlsx
+api_app.py
+data_posts.sql
+/images
