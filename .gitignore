@@ -178,3 +178,4 @@ new_events.xlsx
 api_app.py
 data_posts.sql
 /images
+/new_post.py

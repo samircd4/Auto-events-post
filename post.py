@@ -171,22 +171,73 @@ def post_event(data: dict, index:int):
             logging.info(f'Event {data["name"]} posted successfully')
             
         except Exception as e:
-            logging.error(f'Error posting event {data["name"]}')
+            logging.error(f'Error posting event: {data["event_id"]}: {data["name"]}')
+            with open('error.txt', 'a') as err_file:
+                err_file.write(f'{data["event_id"]}\n')
         finally:
             page.close()
             context.close()
             browser.close()
         return 'success'
 
+
+def updated_data(filename:str, event_ids_to_remove: list):
+    """
+    Removes rows from an Excel file where the event_id matches any in the given list.
+    
+    :param filename: str - The path to the Excel file.
+    :param event_ids_to_remove: list - A list of event_id values to remove.
+    """
+    try:
+        # Load the existing data
+        existing_data = pd.read_excel(filename)
+
+        # Filter out rows where event_id is in the list
+        new_df = existing_data[~existing_data['event_id'].isin(event_ids_to_remove)]
+
+        # Overwrite the original file with the updated data
+        new_df.to_excel(filename, index=False)
+
+        print(f"Successfully removed {len(existing_data) - len(new_df)} events from {filename}.")
+    
+    except Exception as e:
+        print(f"Error: {e}")
+
+
+def read_error_event():
+    """
+    Reads event IDs from 'error.txt', deletes the file after reading, and returns the event IDs as a list.
+    
+    :return: list of event IDs (each line as a separate item)
+    """
+    try:
+        with open('error.txt', 'r') as file:
+            event_ids = file.read().splitlines()
+        
+        # Delete the file after reading
+        os.remove('error.txt')
+        
+        return event_ids
+    except FileNotFoundError:
+        print("Error: 'error.txt' not found.")
+        return []
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return []
+
+
 if __name__ == "__main__":
     logging.info('Starting event scraping process')
-    # get_new_events()
+    old_file_name = 'Events_data.xlsx'
+    updated_data(old_file_name, read_error_event())
+    
+    get_new_events()
     
     if os.path.exists('new_events.xlsx'):
         data = pd.read_excel('new_events.xlsx').to_dict('records')
         
         for index, event_details in enumerate(data, start=1):
-            if index<347:
+            if index<1:
                 continue
             response = post_event(event_details, index)
             
